@@ -1,6 +1,8 @@
 import 'dart:math' show max;
 
 import 'package:flutter/material.dart';
+import 'package:myportofolio_mobile/left_drawer.dart';
+import 'package:myportofolio_mobile/project_form.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -26,7 +28,9 @@ class MyHomePage extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const LeftDrawer(),
       // Body halaman utama dengan padding di sekelilingnya.
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -150,7 +154,15 @@ class ItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         // Aksi ketika kartu ditekan oleh pengguna.
         onTap: () {
-          // Menampilkan SnackBar dengan pesan interaktif.
+          if (item.name == "Tambah Proyek") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProjectFormPage()),
+            );
+            return;
+          }
+
+          // Memunculkan SnackBar ketika diklik
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
