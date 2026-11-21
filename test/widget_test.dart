@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myportofolio_mobile/main.dart';
 import 'package:myportofolio_mobile/menu.dart';
+import 'package:myportofolio_mobile/screens/education_form.dart';
 
 void main() {
   for (final size in [
@@ -24,7 +25,7 @@ void main() {
       expect(find.text('2506612064'), findsOneWidget);
       expect(find.text('Faishal Falih'), findsOneWidget);
       expect(find.text('PBP B'), findsOneWidget);
-      expect(find.byType(ItemCard), findsNWidgets(3));
+      expect(find.byType(ItemCard), findsNWidgets(4));
       expect(tester.takeException(), isNull);
 
       await tester.ensureVisible(find.text('Logout'));
@@ -37,16 +38,75 @@ void main() {
     });
   }
 
-  testWidgets('Each menu button shows its own SnackBar', (tester) async {
+  testWidgets('Menu cards navigate or show their own SnackBar', (tester) async {
     await tester.pumpWidget(const MyApp());
 
-    for (final name in ['Lihat Proyek', 'Tambah Proyek', 'Logout']) {
-      await tester.tap(find.text(name));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Lihat Proyek'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Kamu telah menekan tombol Lihat Proyek!'),
+      findsOneWidget,
+    );
 
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Kamu telah menekan tombol $name!'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    }
+    await tester.ensureVisible(find.text('Tambah Proyek'));
+    await tester.tap(find.text('Tambah Proyek'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add Project Form'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Edukasi'));
+    await tester.tap(find.text('Edukasi'));
+    await tester.pumpAndSettle();
+    expect(find.byType(EducationFormPage), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Logout'));
+    await tester.tap(find.text('Logout'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kamu telah menekan tombol Logout!'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Education form is reachable from drawer and validates years', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add Education'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Simpan'));
+    await tester.pumpAndSettle();
+    expect(find.text('Institusi wajib diisi.'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Universitas UI');
+    await tester.enterText(find.byType(TextFormField).at(1), 'Informatika');
+    await tester.enterText(find.byType(TextFormField).at(2), '2024');
+    await tester.enterText(find.byType(TextFormField).at(3), '2023');
+    await tester.tap(find.text('Simpan'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tahun lulus harus sesudah tahun mulai.'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).at(3), '2028');
+    await tester.tap(find.text('Simpan'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pendidikan berhasil ditambahkan!'), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+    expect(find.text('MyPortfolio'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

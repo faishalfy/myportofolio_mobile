@@ -3,6 +3,7 @@ import 'dart:math' show max;
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/left_drawer.dart';
 import 'package:myportofolio_mobile/project_form.dart';
+import 'package:myportofolio_mobile/screens/education_form.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -14,6 +15,7 @@ class MyHomePage extends StatelessWidget {
   final List<ItemHomepage> items = [
     ItemHomepage("Lihat Proyek", Icons.folder, Colors.blue),
     ItemHomepage("Tambah Proyek", Icons.add_circle, Colors.green),
+    ItemHomepage("Edukasi", Icons.school, Colors.deepPurple),
     ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
@@ -158,6 +160,15 @@ class ItemCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ProjectFormPage()),
+            );
+            return;
+          }
+          if (item.name == "Edukasi") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EducationFormPage(),
+              ),
             );
             return;
           }
