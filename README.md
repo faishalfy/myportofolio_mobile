@@ -85,9 +85,28 @@ Halaman utama menampilkan tiga kartu profil berisi NPM, nama, dan kelas. Tersedi
    - **Hot restart** memulai ulang aplikasi Flutter dari `main()` dan menghapus state sementara, tanpa membangun ulang atau memulai ulang proses native. Gunakan ketika perubahan perlu mengulang inisialisasi Dart atau hot reload tidak cukup.
    - **Full restart** menghentikan lalu menjalankan kembali aplikasi dari awal, termasuk membangun ulang bagian native bila diperlukan. Gunakan untuk perubahan konfigurasi atau kode platform native, dan perubahan plugin/dependensi yang memengaruhi aplikasi native.
 
+### Tugas 8
+
+1. **Perbedaan `Navigator.push()`, `Navigator.pushReplacement()`, dan `Navigator.pop()`**
+
+   `Navigator.push()` menambahkan halaman baru di atas halaman aktif sehingga pengguna dapat kembali ke halaman sebelumnya. Kartu **Edukasi** memakai metode ini untuk membuka `EducationFormPage` dari beranda. `Navigator.pushReplacement()` mengganti halaman aktif dengan halaman baru. Opsi **Home** di drawer memakai metode ini untuk mengganti halaman formulir dengan `MyHomePage`. `Navigator.pop()` menghapus rute teratas sehingga tampilan di bawahnya muncul kembali. Tombol **OK** di dialog ringkasan memakai `pop()` untuk menutup dialog dan menampilkan kembali formulir.
+
+2. **Struktur halaman dan warna tema portofolio**
+
+   `Scaffold` menyediakan tempat untuk `AppBar`, `Drawer`, dan isi halaman (`body`). `AppBar` menampilkan judul dan akses ke menu, sedangkan `LeftDrawer` dipakai bersama di beranda dan kedua halaman formulir. Susunan ini membuat judul dan menu mudah ditemukan ketika pengguna berpindah halaman. Contohnya, `AppBar` pada formulir Proyek dan Pendidikan sama-sama memakai `Colors.indigo`, warna yang juga menjadi dasar skema warna aplikasi.
+
+3. **Tata letak formulir saat ruang terbatas**
+
+   `Column` menyusun kolom isian dari atas ke bawah agar urutan pengisian mudah diikuti, dari institusi sampai tahun lulus. `Padding` memberi jarak dari tepi layar dan `SizedBox` memberi jarak antarkolom serta sebelum tombol **Simpan**. `SingleChildScrollView` memungkinkan pengguna menggulir sampai ke kolom terakhir dan tombol **Simpan** saat layar pendek atau papan ketik mengurangi ruang yang tersedia.
+
+4. **Validasi ketika tombol Simpan ditekan**
+
+   `GlobalKey<FormState>` menghubungkan tombol **Simpan** dengan state formulir. Saat tombol ditekan, `validate()` menjalankan `validator` di setiap kolom. Jika validator mengembalikan pesan kesalahan, pesan itu tampil pada kolom terkait dan dialog ringkasan baru bisa dibuka setelah semua kolom valid. Contohnya, tahun lulus `2023` ditolak jika tahun mulai `2024` karena tahun lulus tidak boleh mendahului tahun mulai. `TextInputType.number` hanya meminta papan ketik angka. Papan ketik tidak bisa menilai apakah angka yang dimasukkan memenuhi aturan formulir, termasuk urutan kedua tahun tersebut.
+
 ## AI Disclosure
 
 ChatGPT/Codex membantu menyusun dan menyunting README, termasuk deskripsi aplikasi, petunjuk setup, dan jawaban Tugas 7. Strategi prompt yang digunakan adalah memberi instruksi spesifik tentang bagian dan urutan konten yang diminta, lalu meminta penjelasan disesuaikan dengan aplikasi ini. Pemeriksaan dilakukan dengan membaca `lib/main.dart` dan `lib/menu.dart`, lalu mencocokkan identitas, tombol aksi, struktur widget, tema, dan penggunaan `BuildContext` dengan README.
 
 Link Prompt Tugas 7 : https://chatgpt.com/share/6af7e104-b474-83ec-ab8f-7af7b714afb7
+Link Prompt Tugas 8 : https://chatgpt.com/share/6b0179ef-81dc-83ec-9a29-fd5f363e103b
 
