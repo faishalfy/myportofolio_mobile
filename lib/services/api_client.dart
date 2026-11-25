@@ -68,10 +68,7 @@ class ApiClient {
         'Accept': 'application/json',
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-      }),
+      body: jsonEncode({'username': username, 'password': password}),
     );
     _ensureSuccess(response);
 
@@ -84,9 +81,7 @@ class ApiClient {
     // and call _ensureSuccess(response).
     final response = await _client.post(
       _uri('/api/v1/auth/logout/'),
-      headers: {
-        'Authorization' : 'Token $token',
-      },
+      headers: {'Authorization': 'Token $token'},
     );
     _ensureSuccess(response);
   }
