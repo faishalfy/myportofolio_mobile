@@ -1,6 +1,6 @@
 import 'dart:math' show max;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/widgets/info_card.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 
