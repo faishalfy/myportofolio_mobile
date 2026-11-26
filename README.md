@@ -1,5 +1,7 @@
 # MyPortfolio Mobile
 
+[![CI](https://github.com/faishalfy/myportofolio_mobile/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/faishalfy/myportofolio_mobile/actions/workflows/main.yaml)
+
 MyPortfolio Mobile adalah aplikasi Flutter sederhana yang menampilkan profil pemilik dan menu aksi portofolio.
 
 ## Profil
@@ -12,26 +14,56 @@ Halaman utama menampilkan tiga kartu profil berisi NPM, nama, dan kelas. Tersedi
 
 ## Setup
 
-1. Clone repositori:
-   ```bash
-   git clone https://github.com/faishalfy/myportofolio_mobile.git
-   ```
-2. Masuk ke folder proyek:
-   ```bash
-   cd myportofolio_mobile
-   ```
-3. Pasang dependensi:
-   ```bash
-   flutter pub get
-   ```
-4. Pilih perangkat yang tersedia dengan melihat daftar perangkat:
-   ```bash
-   flutter devices
-   ```
-5. Jalankan aplikasi pada perangkat pilihan:
-   ```bash
-   flutter run -d <device_id>
-   ```
+### Siapkan Flutter
+
+Gunakan Flutter SDK dengan Dart yang memenuhi versi di [`pubspec.yaml`](pubspec.yaml). Setelah clone, pasang dependensi dan buat file JSON hasil generasi.
+
+```bash
+git clone https://github.com/faishalfy/myportofolio_mobile.git
+cd myportofolio_mobile
+flutter pub get
+dart run build_runner build
+```
+
+Jalankan ulang `build_runner` setelah mengubah model JSON. Versi `build_runner` di proyek ini sudah menangani konflik output tanpa flag `--delete-conflicting-outputs`.
+
+### Jalankan dengan Django lokal
+
+Di direktori [repositori backend Django](https://github.com/faishalfy/myportofolio) yang berisi `manage.py`, aktifkan virtual environment Python dan jalankan perintah berikut.
+
+```bash
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+Untuk menguji penyimpanan Education di Django lokal, buat akun owner dengan `python manage.py createsuperuser` melalui terminal backend, lalu login di aplikasi Flutter.
+
+Dari direktori Flutter, gunakan URL lokal berikut untuk Chrome. Backend dalam mode pengembangan mengizinkan origin localhost untuk rute `/api/v1/`.
+
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000
+```
+
+Untuk emulator Android, pilih ID dari `flutter devices` dan ganti `<device_id>` di perintah berikut. Aplikasi menggunakan `http://10.0.2.2:8000` secara default untuk menjangkau Django di komputer host.
+
+```bash
+flutter run -d <device_id>
+```
+
+### Jalankan dengan backend PWS
+
+Untuk Android, arahkan aplikasi ke domain HTTPS PWS melalui `API_BASE_URL`. Masukkan URL dasar tanpa `/api/v1/` atau garis miring penutup karena `ApiClient` menambahkan path endpoint.
+
+```bash
+flutter run -d <device_id> --dart-define=API_BASE_URL=https://faishal-falih-myportofolio.pws.cs.ui.ac.id
+```
+
+GET publik ke [endpoint Education di PWS](https://faishal-falih-myportofolio.pws.cs.ui.ac.id/api/v1/education/) diharapkan mengembalikan HTTP `200` dan daftar JSON, termasuk `[]` jika belum ada entri.
+
+```bash
+curl -i -H 'Accept: application/json' https://faishal-falih-myportofolio.pws.cs.ui.ac.id/api/v1/education/
+```
 
 ### Tugas 7
 
@@ -103,10 +135,44 @@ Halaman utama menampilkan tiga kartu profil berisi NPM, nama, dan kelas. Tersedi
 
    `GlobalKey<FormState>` menghubungkan tombol **Simpan** dengan state formulir. Saat tombol ditekan, `validate()` menjalankan `validator` di setiap kolom. Jika validator mengembalikan pesan kesalahan, pesan itu tampil pada kolom terkait dan dialog ringkasan baru bisa dibuka setelah semua kolom valid. Contohnya, tahun lulus `2023` ditolak jika tahun mulai `2024` karena tahun lulus tidak boleh mendahului tahun mulai. `TextInputType.number` hanya meminta papan ketik angka. Papan ketik tidak bisa menilai apakah angka yang dimasukkan memenuhi aturan formulir, termasuk urutan kedua tahun tersebut.
 
+### Assignment 9
+
+1. **Serialisasi model Education**
+
+   `@JsonSerializable(fieldRename: FieldRename.snake)` menghasilkan `fromJson()` dan `toJson()` dengan nama field yang sesuai kontrak Django REST Framework. Form mengisi properti Dart `endYear` dari input Tahun Lulus, lalu model otomatis mengirim `end_year`. Jika form merakit sebuah `Map` dan keliru memakai `graduationYear`, nilai tahun lulus bisa terabaikan karena serializer Django mengenal `end_year` sebagai field opsional. `@JsonKey(includeToJson: false)` tetap memungkinkan model membaca `id`, `star_count`, dan `is_starred` dari respons serta mengecualikan ketiganya dari payload POST karena server yang menentukan nilainya.
+
+2. **`FutureBuilder` dan penanganan error**
+
+   `EducationListScreen` menyimpan `Future` dari `getEducation()` di `initState()`, sehingga pemanggilan ulang `build()` tidak memicu GET baru. Membuat `Future` di dalam `build()` bisa menyebabkan permintaan berulang setiap widget dibangun ulang dan membuat indikator loading muncul kembali. Retry, pull-to-refresh, dan penyimpanan yang berhasil mengganti `Future` tersebut agar daftar dimuat ulang. Respons `200` dengan `[]` berarti daftar berhasil dimuat dan kosong. Respons gagal menghasilkan `ApiException` yang membawa status HTTP dan isi respons, sehingga daftar bisa menawarkan Retry dan form bisa meminta login ulang khusus ketika POST mendapat `401`.
+
+3. **Autentikasi sesi Django dan token DRF**
+
+   Django memakai cookie untuk mengenali sesi browser. Jika request yang mengubah data diautentikasi dengan sesi, `SessionAuthentication` juga memeriksa token CSRF. Flutter memperoleh token dari `/api/v1/auth/token/` setelah login, menyimpannya di `AuthState`, dan menambahkannya melalui header `Authorization: Token <key>` saat mengirim POST. Backend mempertahankan kedua skema karena halaman web Django sudah memakai sesi browser, sementara aplikasi Flutter mengirim token secara eksplisit. GET Education bisa diakses publik, sedangkan POST tetap memerlukan izin owner meskipun token pengguna valid.
+
+4. **Workflow CI dan build APK**
+
+   Job `build` memakai workflow `flutter_package.yml@v2` dari Very Good Workflows untuk memasang dependensi, menjalankan `build_runner` pada langkah `setup`, memeriksa format Dart, menjalankan `flutter analyze`, dan menjalankan tes dengan pengukuran coverage. `min_coverage: 0` meniadakan ambang persentase minimum, sementara tes tetap harus lulus. Job `build_apk` berjalan setelah `build` lulus. Job ini melakukan checkout sendiri, memasang dependensi, menjalankan code generation lagi, lalu membangun APK release dan mengunggahnya sebagai `app-release-apk`. File `*.g.dart` diabaikan Git karena dapat dibuat ulang dari model dan dependensi proyek. Setiap job perlu membuat ulang file itu agar analisis, tes, dan build dapat memuat `part` yang dirujuk model. [Workflow proyek](.github/workflows/main.yaml) · [Dokumentasi Very Good Workflows](https://workflows.vgv.dev/docs/workflows/flutter_package)
+
 ## AI Disclosure
 
 ChatGPT/Codex membantu menyusun dan menyunting README, termasuk deskripsi aplikasi, petunjuk setup, dan jawaban Tugas 7. Strategi prompt yang digunakan adalah memberi instruksi spesifik tentang bagian dan urutan konten yang diminta, lalu meminta penjelasan disesuaikan dengan aplikasi ini. Pemeriksaan dilakukan dengan membaca `lib/main.dart` dan `lib/menu.dart`, lalu mencocokkan identitas, tombol aksi, struktur widget, tema, dan penggunaan `BuildContext` dengan README.
 
 Link Prompt Tugas 7 : https://chatgpt.com/share/6af7e104-b474-83ec-ab8f-7af7b714afb7
 Link Prompt Tugas 8 : https://chatgpt.com/share/6b0179ef-81dc-83ec-9a29-fd5f363e103b
+
+Untuk Assignment 9, ChatGPT/Codex membantu mengerjakan checklist secara bertahap, mulai dari model dan API Education, navigasi, form dan penanganan `401`, sampai pembaruan tes dan README. Prompt merujuk ke nomor TODO yang sedang dikerjakan agar tiap perubahan mengikuti kontrak backend dan struktur proyek yang ada. Pemeriksaan bersama Codex mencakup pencocokan field dengan serializer Django, verifikasi `education.g.dart`, pemeriksaan format, `flutter analyze`, dan build Flutter bundle. Seluruh tes unit dan widget lulus lewat `flutter_tester` dengan runner lokal sementara karena `flutter test` membutuhkan socket localhost yang dibatasi di lingkungan eksekusi. Pengujian PWS dan hasil CI untuk perubahan Assignment 9 masih perlu dikonfirmasi.
+
+## TODO Assignment 9
+
+Referensi [Assignment 9](https://pbp.cs.ui.ac.id/assignments/individual/tugas-9.html) dan [Tutorial 10](https://pbp.cs.ui.ac.id/tutorial/tutorial-10.html).
+
+1. [x] Implementasikan model [`Education`](lib/models/education.dart) serta GET publik dan POST dengan token di [`api_client.dart`](lib/services/api_client.dart). `build_runner` menghasilkan `education.g.dart` dan Git mengabaikannya.
+2. [x] Implementasikan [daftar](lib/screens/education_list_screen.dart) dan [detail Education](lib/screens/education_detail_screen.dart) publik dari kartu Edukasi dan drawer. Daftar mendukung loading, error, Retry, kondisi kosong, dan pull-to-refresh. Verifikasi lewat widget test dicakup di langkah 6.
+3. [x] Refactor [form Education](lib/screens/education_form.dart) untuk validasi input, POST dengan token, login ulang pada 401, dan refresh daftar setelah berhasil menyimpan. Widget test untuk alur ini ada di langkah 6.
+   - [ ] Verifikasi di PWS dengan akun owner. Tambah entri dari Flutter, cek hasilnya di daftar Flutter dan web Django, lalu uji logout. Untuk menguji 401, cabut token akun uji sebelum menekan Simpan dan pastikan login ulang ditawarkan dengan isian tetap tersimpan di form.
+4. [x] Dokumentasikan setup Flutter, code generation, serta koneksi ke Django lokal dan PWS di [Setup](#setup).
+   - [ ] Verifikasi respons GET publik pada [endpoint Education di PWS](https://faishal-falih-myportofolio.pws.cs.ui.ac.id/api/v1/education/).
+5. [x] Isi [jawaban reflektif Assignment 9](#assignment-9), perbarui [AI Disclosure](#ai-disclosure), dan tambahkan badge CI.
+6. [x] Jalankan pemeriksaan format, `flutter analyze`, dan suite tes lokal. [Tes `MockClient`](test/education_api_client_test.dart) mencakup GET publik, payload dan header POST, serta respons `401`. Seluruh 11 tes lulus lewat `flutter_tester`. Eksekusi `flutter test` standar akan diverifikasi di CI pada langkah 7.
+7. [ ] Buat commit bertahap dengan pesan deskriptif, lalu push ke repo GitHub publik yang sama dengan Assignment 8. Buka PR ke `main` untuk menjalankan [CI](.github/workflows/main.yaml), cek kedua job hijau dan unduh `app-release-apk`. Kumpulkan tautan commit final lewat SCELE sebelum **30 November 2026, 23.59 WIB**.
 

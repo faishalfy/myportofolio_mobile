@@ -13,7 +13,7 @@ jobs:
   build:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v2
     with:
-      setup: dart run build_runner build --delete-conflicting-outputs
+      setup: dart run build_runner build
       coverage_excludes: "**/*.g.dart"
       min_coverage: 0
       timeout_minutes: 15
@@ -28,8 +28,10 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: dart run build_runner build --delete-conflicting-outputs
-      - run: flutter build apk --release
+      - run: dart run build_runner build
+      - run: >-
+          flutter build apk --release
+          --dart-define=API_BASE_URL=https://faishal-falih-myportofolio.pws.cs.ui.ac.id
       - uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
