@@ -17,6 +17,12 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void invalidateToken(String token) {
+    if (_token != token) return;
+    _token = null;
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     final current = _token;
     if (current == null) return;
@@ -28,10 +34,7 @@ class AuthState extends ChangeNotifier {
     } on ClientException {
       // A network failure must not prevent local logout.
     } finally {
-      if (_token == current) {
-        _token = null;
-        notifyListeners();
-      }
+      invalidateToken(current);
     }
   }
 }

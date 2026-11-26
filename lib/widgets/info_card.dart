@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:myportofolio_mobile/screens/education_form.dart';
+import 'package:myportofolio_mobile/screens/education_list_screen.dart';
 import 'package:myportofolio_mobile/screens/project_form_screen.dart';
 import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/widgets/auth_guard.dart';
@@ -68,8 +68,11 @@ class ItemCard extends StatelessWidget {
           if (item.name == "Edukasi") {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const EducationFormPage(),
+              MaterialPageRoute<void>(
+                settings: const RouteSettings(
+                  name: EducationListScreen.routeName,
+                ),
+                builder: (context) => const EducationListScreen(),
               ),
             );
             return;
