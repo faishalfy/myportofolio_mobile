@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:myportofolio_mobile/config.dart';
+import 'package:myportofolio_mobile/models/education.dart';
 import 'package:myportofolio_mobile/models/project.dart';
 
 /// Exception thrown when an API request returns an unexpected status code.
@@ -58,10 +59,42 @@ class ApiClient {
     return Project.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
+  Future<List<Education>> getEducation() async {
+    final response = await _client.get(
+      _uri('/api/v1/education/'),
+      headers: const {'Accept': 'application/json'},
+    );
+    _ensureSuccess(response);
+
+    final decoded = jsonDecode(response.body) as List<dynamic>;
+    return decoded
+        .map((item) => Education.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Education> createEducation(
+    Education education, {
+    required String token,
+  }) async {
+    final response = await _client.post(
+      _uri('/api/v1/education/'),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode(education.toJson()),
+    );
+    if (response.statusCode != 201) {
+      throw ApiException(response.statusCode, response.body);
+    }
+
+    return Education.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
   Future<String> obtainToken(String username, String password) async {
-    // TODO: Send HTTP POST to /api/v1/auth/token/ with JSON body
-    // {'username': username, 'password': password}.
-    // Call _ensureSuccess(response) and return decoded['token'] as String.
     final response = await _client.post(
       _uri('/api/v1/auth/token/'),
       headers: {
@@ -77,8 +110,6 @@ class ApiClient {
   }
 
   Future<void> logout({required String token}) async {
-    // TODO: Send HTTP POST to /api/v1/auth/logout/ with Authorization: 'Token $token'
-    // and call _ensureSuccess(response).
     final response = await _client.post(
       _uri('/api/v1/auth/logout/'),
       headers: {'Authorization': 'Token $token'},
