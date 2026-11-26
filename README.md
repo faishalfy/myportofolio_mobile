@@ -156,23 +156,8 @@ curl -i -H 'Accept: application/json' https://faishal-falih-myportofolio.pws.cs.
 ## AI Disclosure
 
 ChatGPT/Codex membantu menyusun dan menyunting README, termasuk deskripsi aplikasi, petunjuk setup, dan jawaban Tugas 7. Strategi prompt yang digunakan adalah memberi instruksi spesifik tentang bagian dan urutan konten yang diminta, lalu meminta penjelasan disesuaikan dengan aplikasi ini. Pemeriksaan dilakukan dengan membaca `lib/main.dart` dan `lib/menu.dart`, lalu mencocokkan identitas, tombol aksi, struktur widget, tema, dan penggunaan `BuildContext` dengan README.
+ChatGPT/Codex membantu mengerjakan checklist secara bertahap, mulai dari model dan API Education, navigasi, form dan penanganan `401`, sampai pembaruan tes dan README. Prompt merujuk ke nomor TODO yang sedang dikerjakan agar tiap perubahan mengikuti kontrak backend dan struktur proyek yang ada. Pemeriksaan bersama Codex mencakup pencocokan field dengan serializer Django, verifikasi `education.g.dart`, pemeriksaan format, `flutter analyze`, dan build Flutter bundle. Seluruh tes unit dan widget lulus lewat `flutter_tester` dengan runner lokal sementara karena `flutter test` membutuhkan socket localhost yang dibatasi di lingkungan eksekusi. Pengujian PWS dan hasil CI untuk perubahan Assignment 9 masih perlu dikonfirmasi.
 
 Link Prompt Tugas 7 : https://chatgpt.com/share/6af7e104-b474-83ec-ab8f-7af7b714afb7
 Link Prompt Tugas 8 : https://chatgpt.com/share/6b0179ef-81dc-83ec-9a29-fd5f363e103b
-
-Untuk Assignment 9, ChatGPT/Codex membantu mengerjakan checklist secara bertahap, mulai dari model dan API Education, navigasi, form dan penanganan `401`, sampai pembaruan tes dan README. Prompt merujuk ke nomor TODO yang sedang dikerjakan agar tiap perubahan mengikuti kontrak backend dan struktur proyek yang ada. Pemeriksaan bersama Codex mencakup pencocokan field dengan serializer Django, verifikasi `education.g.dart`, pemeriksaan format, `flutter analyze`, dan build Flutter bundle. Seluruh tes unit dan widget lulus lewat `flutter_tester` dengan runner lokal sementara karena `flutter test` membutuhkan socket localhost yang dibatasi di lingkungan eksekusi. Pengujian PWS dan hasil CI untuk perubahan Assignment 9 masih perlu dikonfirmasi.
-
-## TODO Assignment 9
-
-Referensi [Assignment 9](https://pbp.cs.ui.ac.id/assignments/individual/tugas-9.html) dan [Tutorial 10](https://pbp.cs.ui.ac.id/tutorial/tutorial-10.html).
-
-1. [x] Implementasikan model [`Education`](lib/models/education.dart) serta GET publik dan POST dengan token di [`api_client.dart`](lib/services/api_client.dart). `build_runner` menghasilkan `education.g.dart` dan Git mengabaikannya.
-2. [x] Implementasikan [daftar](lib/screens/education_list_screen.dart) dan [detail Education](lib/screens/education_detail_screen.dart) publik dari kartu Edukasi dan drawer. Daftar mendukung loading, error, Retry, kondisi kosong, dan pull-to-refresh. Verifikasi lewat widget test dicakup di langkah 6.
-3. [x] Refactor [form Education](lib/screens/education_form.dart) untuk validasi input, POST dengan token, login ulang pada 401, dan refresh daftar setelah berhasil menyimpan. Widget test untuk alur ini ada di langkah 6.
-   - [ ] Verifikasi di PWS dengan akun owner. Tambah entri dari Flutter, cek hasilnya di daftar Flutter dan web Django, lalu uji logout. Untuk menguji 401, cabut token akun uji sebelum menekan Simpan dan pastikan login ulang ditawarkan dengan isian tetap tersimpan di form.
-4. [x] Dokumentasikan setup Flutter, code generation, serta koneksi ke Django lokal dan PWS di [Setup](#setup).
-   - [ ] Verifikasi respons GET publik pada [endpoint Education di PWS](https://faishal-falih-myportofolio.pws.cs.ui.ac.id/api/v1/education/).
-5. [x] Isi [jawaban reflektif Assignment 9](#assignment-9), perbarui [AI Disclosure](#ai-disclosure), dan tambahkan badge CI.
-6. [x] Jalankan pemeriksaan format, `flutter analyze`, dan suite tes lokal. [Tes `MockClient`](test/education_api_client_test.dart) mencakup GET publik, payload dan header POST, serta respons `401`. Seluruh 11 tes lulus lewat `flutter_tester`. Eksekusi `flutter test` standar akan diverifikasi di CI pada langkah 7.
-7. [ ] Buat commit bertahap dengan pesan deskriptif, lalu push ke repo GitHub publik yang sama dengan Assignment 8. Buka PR ke `main` untuk menjalankan [CI](.github/workflows/main.yaml), cek kedua job hijau dan unduh `app-release-apk`. Kumpulkan tautan commit final lewat SCELE sebelum **30 November 2026, 23.59 WIB**.
-
+Link Prompt Tugas 9 : https://chatgpt.com/share/6b07fde6-d8b8-83ec-a0bc-f2d609f9853c
